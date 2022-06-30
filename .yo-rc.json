@@ -1,0 +1,16 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "version": "1.14.0",
+    "libraryName": "spfx-onboadingform",
+    "libraryId": "25f26246-bfe7-4886-acdc-c161554e7140",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "spfx-onboadingform",
+    "solutionShortDescription": "spfx-onboadingform description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

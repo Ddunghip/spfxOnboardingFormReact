@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-onboadingform-client-side-solution",
+    "id": "25f26246-bfe7-4886-acdc-c161554e7140",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.14.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "spfx-onboadingform description"
+      },
+      "longDescription": {
+        "default": "spfx-onboadingform description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "spfx-onboadingform Feature",
+        "description": "The feature that activates elements of the spfx-onboadingform solution.",
+        "id": "a72e630c-9898-4af8-bb45-2576ff9223c7",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-onboadingform.sppkg"
+  }
+}

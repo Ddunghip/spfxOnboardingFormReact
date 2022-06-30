@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "onboardingform-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/onboardingform/OnboardingformWebPart.js",
+          "manifest": "./src/webparts/onboardingform/OnboardingformWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "OnboardingformWebPartStrings": "lib/webparts/onboardingform/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
+  }
+}
