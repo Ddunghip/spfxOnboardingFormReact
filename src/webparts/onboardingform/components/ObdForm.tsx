@@ -6,12 +6,15 @@ import { DatePicker, IDatePickerStrings } from 'office-ui-fabric-react/lib/DateP
 import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { Label } from 'office-ui-fabric-react/lib/Label';
-import { sp, Web, IWeb } from "@pnp/sp/presets/all";
+import { sp, Web, IWeb, } from "@pnp/sp/presets/all";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { Dropdown, IDropdownOption } from '@fluentui/react';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
+import { ObdDetails } from './ObdDetails';
+import { Log } from '@microsoft/sp-core-library';
+import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
 
 
 var arr = [];
@@ -23,6 +26,12 @@ export interface IStates {
     DDChoicesOfficelocation: string;
     tgl: boolean;
     tglsurface: boolean;
+    tglTablet: boolean;
+    tglCarelink: boolean;
+    tglDogsign: boolean;
+    tglEpicor: boolean;
+    tglIcare: boolean;
+    tglRiskman: boolean;
 
 
 
@@ -41,6 +50,11 @@ export interface IStates {
     ExistingPhoneNumber: any;
     WorkstationDescription: any;
 
+    //send email
+    ToEmail: any;
+    CcEmail: any;
+    EmailSubject: any;
+    EmailBody: any;
 }
 
 export default class ObdForm extends React.Component<IOnboardingformProps, IStates> {
@@ -52,6 +66,12 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             DDChoicesOfficelocation: "",
             tgl: false,
             tglsurface: false,
+            tglTablet: false,
+            tglCarelink: false,
+            tglDogsign: false,
+            tglEpicor: false,
+            tglIcare: false,
+            tglRiskman: false,
 
             Items: [],
             EmployeeName: "",
@@ -68,8 +88,42 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             ExistingPhoneNumber: "",
             WorkstationDescription: "",
 
+            //send email
+            ToEmail: [],
+            CcEmail: [],
+            EmailSubject: "",
+            EmailBody: "",
+
         };
+        sp.setup({
+            spfxContext: this.props.spconect
+        });
     };
+
+    private async SendAnEmil() {
+        if (this.state.EmployeeNameId) {
+            await sp.utility.sendEmail({
+                //Body of Email  
+                Body: String("Check new employee"),
+                //Subject of Email  
+                Subject: String("Test send Email"),
+                //Array of string for To of Email  
+                To: [this.state.EmployeeNameId],
+                CC: this.state.EmployeeNameId,
+                AdditionalHeaders: {
+                    "content-type": "text/html",
+
+
+                },
+            }).then(() => {
+                alert("Email Sent!");
+            });
+        }
+        else {
+            alert("Please Enter Valid Email ID");
+
+        }
+    }
 
 
     // public _onChange(ev, checked: boolean) {
@@ -82,11 +136,11 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
         this.setState({
             ...this.state, [event.target.title]: item.key as string
         });
-        console.log(item, this.state, event.target.title);
+        // console.log(item, this.state, event.target.title);
     }
     public handleChange(e) {
         this.setState({ ...this.state, [e.target.name]: e.target.value });
-        console.log("name", e.target.name, "state", this.state, "value", e.target.value);
+        // console.log("name", e.target.name, "state", this.state, "value", e.target.value);
     }
 
     public async componentDidMount() {
@@ -98,11 +152,13 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
         const items: any[] = await web.lists.getByTitle("Employee onboarding").items.select("*", "ID/Title").get();
         console.log(items);
         this.setState({ Items: items });
-        let html = await this.getHTML(items);
-        this.setState({ HTML: html });
+        // let html = await this.getHTML(items);
+        // this.setState({ HTML: html });
     }
     public findData = (id): void => {
         //this.fetchData();
+        // console.log('check id', id);
+
         var itemID = id;
         var allitems = this.state.Items;
         var allitemsLength = allitems.length;
@@ -110,50 +166,17 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             for (var i = 0; i < allitemsLength; i++) {
                 if (itemID == allitems[i].Id) {
                     this.setState({
-                        ID: itemID,
-                        EmployeeName: allitems[i].Employee_x0020_Name.Title,
-                        EmployeeNameId: allitems[i].Employee_x0020_NameId,
-                        HireDate: new Date(allitems[i].HireDate),
-                        JobDescription: allitems[i].Job_x0020_Description
+                        FirstName: allitems[i].FirstName,
+                        LastName: allitems[i].LastName,
+                        PhoneNumber: allitems[i].PhoneNumber,
+                        Email: allitems[i].Email,
+                        ID: allitems[i].ID
                     });
                 }
             }
         }
     }
 
-    public async getHTML(items) {
-        var tabledata = <table className={styles.table}>
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Phone Number </th>
-                    <th>Email </th>
-                    <th>Start Date </th>
-                    <th>Workstation Description </th>
-                    <th>Existing Phone Number </th>
-                </tr>
-            </thead>
-            <tbody>
-                {items && items.map((item, i) => {
-                    return [
-                        <tr key={i} onClick={() => this.findData(item.ID)}>
-                            <td>{item.FirstName}</td>
-                            <td>{item.LastName}</td>
-                            <td>{item.PhoneNumber}</td>
-                            <td>{item.Email}</td>
-                            <td>{FormatDate(item.StartDate)}</td>
-                            <td>{item.Workstation_x0020_Description}</td>
-                            <td>{item.Existing_x0020_Phone_x0020_Numbe}</td>
-
-
-                        </tr>
-                    ];
-                })}
-            </tbody>
-        </table>;
-        return await tabledata;
-    }
     public _getPeoplePickerItems = async (items: any[]) => {
 
         if (items.length > 0) {
@@ -189,7 +212,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             ExistingPhoneNumber: "",
             WorkstationDescription: "",
 
-        })
+        });
         console.log(this.state);
 
 
@@ -210,12 +233,21 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             Is_x0020_Returned_x0020_to_x0020: this.state.DDChoicesReturnedtowork,
             Office_x0020_Location: this.state.DDChoicesOfficelocation,
             Mobile: this.state.tgl,
+            Surface_x0020_Pro: this.state.tglsurface,
+            Tablet: this.state.tglTablet,
+            Carelink: this.state.tglCarelink,
+            DocSign: this.state.tglDogsign,
+            Epicor: this.state.tglEpicor,
+            ICare: this.state.tglIcare,
+            Riskman: this.state.tglRiskman,
+
 
         }).then(i => {
             console.log(i);
         });
         alert("Created Successfully");
-        this.setState({ EmployeeName: "", HireDate: null, JobDescription: "" });
+        this.SendAnEmil();
+        this.ResetData();
         this.fetchData();
     }
     private async UpdateData() {
@@ -230,17 +262,19 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             console.log(i);
         });
         alert("Updated Successfully");
-        this.setState({ EmployeeName: "", HireDate: null, JobDescription: "" });
+        this.ResetData();
         this.fetchData();
     }
     private async DeleteData() {
         let web = Web(this.props.webURL);
-        await web.lists.getByTitle("EmployeeDetails").items.getById(this.state.ID).delete()
+        console.log('check delete', this.state.ID);
+
+        await web.lists.getByTitle("Employee onboarding").items.getById(this.state.ID).delete()
             .then(i => {
                 console.log(i);
             });
         alert("Deleted Successfully");
-        this.setState({ EmployeeName: "", HireDate: null, JobDescription: "" });
+        this.ResetData();
         this.fetchData();
     }
 
@@ -249,13 +283,16 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
     public render(): React.ReactElement<IOnboardingformProps> {
         return (
             <div>
-                <h1>New Empoloyee Onboarding</h1>
+                <h1 style={{ color: "red" }}>New Employee Onboarding</h1>
                 {/* {this.state.HTML} */}
+                <ObdDetails
+                    Items={this.state.Items}
+                    finData={this.findData} />
 
                 <div >
                     <form>
                         <div >
-                            <Label>Firs Name</Label>
+                            <Label>First Name</Label>
                             <TextField value={this.state.FirstName} id="FirstName" name="FirstName"
                                 onChange={(value) => this.handleChange(value)} />
 
@@ -333,7 +370,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                         label="Surface Pro"
                                         onText="Yes"
                                         offText="No"
-                                    // onChange={this._onChange}
+                                        onChanged={checked => this.setState({ tglsurface: checked })}
                                     />
                                 </div>
                                 <div>
@@ -342,6 +379,8 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                         label="Tablet"
                                         onText="Yes"
                                         offText="No"
+                                        onChanged={checked => this.setState({ tglTablet: checked })}
+
                                     // onChange={newValue => this.setState(this.state.tgl: newValue ) }
                                     />
                                 </div>
@@ -355,7 +394,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                         label="Carelink"
                                         onText="Yes"
                                         offText="No"
-                                    // onChange={newValue => this.setState(this.state.tgl: newValue ) }
+                                        onChanged={checked => this.setState({ tglCarelink: checked })}
                                     />
                                 </div>
                                 <div>
@@ -364,7 +403,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                         label="DocSign"
                                         onText="Yes"
                                         offText="No"
-                                    // onChange={newValue => this.setState(this.state.tgl: newValue ) }
+                                        onChanged={checked => this.setState({ tglDogsign: checked })}
                                     />
                                 </div>
                                 <div>
@@ -373,7 +412,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                         label="Epicor"
                                         onText="Yes"
                                         offText="No"
-                                    // onChange={newValue => this.setState(this.state.tgl: newValue ) }
+                                        onChanged={checked => this.setState({ tglEpicor: checked })}
                                     />
                                 </div>
                                 <div>
@@ -382,7 +421,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                         label="ICare"
                                         onText="Yes"
                                         offText="No"
-                                    // onChange={newValue => this.setState(this.state.tgl: newValue ) }
+                                        onChanged={checked => this.setState({ tglIcare: checked })}
                                     />
                                 </div>
                                 <div>
@@ -391,7 +430,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                         label="Riskman"
                                         onText="Yes"
                                         offText="No"
-                                    // onChange={newValue => this.setState(this.state.tgl: newValue ) }
+                                        onChanged={checked => this.setState({ tglRiskman: checked })}
                                     />
                                 </div>
                             </div>

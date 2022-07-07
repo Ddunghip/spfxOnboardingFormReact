@@ -25,6 +25,8 @@ export default class OnboardingformWebPart extends BaseClientSideWebPart<IOnboar
         description: this.properties.description,
         webURL: this.context.pageContext.web.absoluteUrl,
         context: this.context,
+        spconect: this.context,
+
         ChoicesRoles: await getChoiceFields(this.context.pageContext.web.absoluteUrl, 'Roles'),
         ChoicesReturnedtowork: await getChoiceFields(this.context.pageContext.web.absoluteUrl, 'Is_x0020_Returned_x0020_to_x0020'),
         ChoicesOfficelocation: await getChoiceFields(this.context.pageContext.web.absoluteUrl, 'Office_x0020_Location'),
