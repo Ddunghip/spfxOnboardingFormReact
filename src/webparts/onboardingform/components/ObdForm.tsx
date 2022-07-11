@@ -13,50 +13,12 @@ import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { Dropdown, IDropdownOption } from '@fluentui/react';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 import { ObdDetails } from './ObdDetails';
+import { IStates } from './IStates';
 import { Log } from '@microsoft/sp-core-library';
 import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
 
 
 var arr = [];
-
-
-export interface IStates {
-    DDChoicesRoles: string;
-    DDChoicesReturnedtowork: string;
-    DDChoicesOfficelocation: string;
-    tgl: boolean;
-    tglsurface: boolean;
-    tglTablet: boolean;
-    tglCarelink: boolean;
-    tglDogsign: boolean;
-    tglEpicor: boolean;
-    tglIcare: boolean;
-    tglRiskman: boolean;
-
-
-
-    Items: any;
-    ID: any;
-    EmployeeName: any;
-    EmployeeNameId: any;
-    HireDate: any;
-    JobDescription: any;
-    HTML: any;
-    LastName: any;
-    FirstName: any;
-    StartDate: any;
-    PhoneNumber: any;
-    Email: any;
-    ExistingPhoneNumber: any;
-    WorkstationDescription: any;
-
-    //send email
-    ToEmail: any;
-    CcEmail: any;
-    EmailSubject: any;
-    EmailBody: any;
-}
-
 export default class ObdForm extends React.Component<IOnboardingformProps, IStates> {
     constructor(props) {
         super(props);
@@ -87,43 +49,20 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             Email: "",
             ExistingPhoneNumber: "",
             WorkstationDescription: "",
+            showdetail: false,
 
             //send email
-            ToEmail: [],
-            CcEmail: [],
-            EmailSubject: "",
-            EmailBody: "",
+            // ToEmail: [],
+            // CcEmail: [],
+            // EmailSubject: "",
+            // EmailBody: "",
 
         };
-        sp.setup({
-            spfxContext: this.props.spconect
-        });
+        // sp.setup({
+        //     spfxContext: this.props.spconect
+        // });
     };
 
-    private async SendAnEmil() {
-        if (this.state.EmployeeNameId) {
-            await sp.utility.sendEmail({
-                //Body of Email  
-                Body: String("Check new employee"),
-                //Subject of Email  
-                Subject: String("Test send Email"),
-                //Array of string for To of Email  
-                To: [this.state.EmployeeNameId],
-                CC: this.state.EmployeeNameId,
-                AdditionalHeaders: {
-                    "content-type": "text/html",
-
-
-                },
-            }).then(() => {
-                alert("Email Sent!");
-            });
-        }
-        else {
-            alert("Please Enter Valid Email ID");
-
-        }
-    }
 
 
     // public _onChange(ev, checked: boolean) {
@@ -136,13 +75,24 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
         this.setState({
             ...this.state, [event.target.title]: item.key as string
         });
-        // console.log(item, this.state, event.target.title);
     }
     public handleChange(e) {
         this.setState({ ...this.state, [e.target.name]: e.target.value });
-        // console.log("name", e.target.name, "state", this.state, "value", e.target.value);
     }
+    public handleShow() {
+        this.setState(e => ({
+            showdetail: !e.showdetail
+        }))
 
+    }
+    public handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ ...this.state, [event.target.id]: !this.state[event.target.id] })
+        // this.setState(e => ({
+        //     showdetail: !e.showdetail
+        // }))
+        console.log('check show', this.state, event.target.id);
+
+    }
     public async componentDidMount() {
         await this.fetchData();
     }
@@ -197,6 +147,13 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             DDChoicesReturnedtowork: "",
             DDChoicesOfficelocation: "",
             tgl: false,
+            tglsurface: false,
+            tglTablet: false,
+            tglCarelink: false,
+            tglDogsign: false,
+            tglEpicor: false,
+            tglIcare: false,
+            tglRiskman: false,
             Items: [],
             EmployeeName: "",
             EmployeeNameId: 0,
@@ -246,7 +203,6 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             console.log(i);
         });
         alert("Created Successfully");
-        this.SendAnEmil();
         this.ResetData();
         this.fetchData();
     }
@@ -283,11 +239,14 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
     public render(): React.ReactElement<IOnboardingformProps> {
         return (
             <div>
-                <h1 style={{ color: "red" }}>New Employee Onboarding</h1>
+                <h1 style={{ color: "#a305a3", textAlign: "center" }}>New Employee Onboarding</h1>
+                <div className={styles.btngroup}>
+                    <div><PrimaryButton id='showdetail' name='showdetail' className={styles.btngroupx} text="Show Details" onClick={() => this.handleShow()} /></div>
+                </div>
                 {/* {this.state.HTML} */}
-                <ObdDetails
+                {this.state.showdetail ? <ObdDetails
                     Items={this.state.Items}
-                    finData={this.findData} />
+                    finData={this.findData} /> : ""}
 
                 <div >
                     <form>
@@ -352,45 +311,46 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                 options={this.props.ChoicesOfficelocation}
                                 onChange={this.onDropdownChange}
                             />
-                            <Label>IT Equipments</Label>
+                            <Label className={styles.Ilabel}> IT Equipments</Label>
                             <div className={styles.togglegroup}>
                                 <div><Toggle
+                                    id='tgl'
+
                                     // defaultChecked={false}
                                     checked={this.state.tgl}
                                     label="Mobile"
                                     onText="Yes"
                                     offText="No"
-                                    // onChange={this._onChange}
                                     onChanged={checked => this.setState({ tgl: checked })}
                                 />
                                 </div>
                                 <div>
                                     <Toggle
-                                        defaultChecked={false}
+                                        checked={this.state.tglsurface}
                                         label="Surface Pro"
                                         onText="Yes"
                                         offText="No"
+                                        // onChange={() => this.handleToggle}
                                         onChanged={checked => this.setState({ tglsurface: checked })}
                                     />
                                 </div>
                                 <div>
                                     <Toggle
-                                        defaultChecked={false}
+                                        checked={this.state.tglTablet}
                                         label="Tablet"
                                         onText="Yes"
                                         offText="No"
                                         onChanged={checked => this.setState({ tglTablet: checked })}
 
-                                    // onChange={newValue => this.setState(this.state.tgl: newValue ) }
                                     />
                                 </div>
                             </div>
-                            <Label>System Access Requirements</Label>
+                            <Label className={styles.Ilabel}> System Access Requirements</Label>
                             <div className={styles.togglegroup}>
 
                                 <div>
                                     <Toggle
-                                        defaultChecked={false}
+                                        checked={this.state.tglCarelink}
                                         label="Carelink"
                                         onText="Yes"
                                         offText="No"
@@ -399,7 +359,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                 </div>
                                 <div>
                                     <Toggle
-                                        defaultChecked={false}
+                                        checked={this.state.tglDogsign}
                                         label="DocSign"
                                         onText="Yes"
                                         offText="No"
@@ -408,7 +368,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                 </div>
                                 <div>
                                     <Toggle
-                                        defaultChecked={false}
+                                        checked={this.state.tglEpicor}
                                         label="Epicor"
                                         onText="Yes"
                                         offText="No"
@@ -417,7 +377,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                 </div>
                                 <div>
                                     <Toggle
-                                        defaultChecked={false}
+                                        checked={this.state.tglIcare}
                                         label="ICare"
                                         onText="Yes"
                                         offText="No"
@@ -426,7 +386,7 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                 </div>
                                 <div>
                                     <Toggle
-                                        defaultChecked={false}
+                                        checked={this.state.tglRiskman}
                                         label="Riskman"
                                         onText="Yes"
                                         offText="No"
@@ -441,10 +401,10 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                     </form>
                 </div>
                 <div className={styles.btngroup}>
-                    <div><PrimaryButton text="Submit" onClick={() => this.SaveData()} /></div>
-                    <div><PrimaryButton text="Reset" onClick={() => this.ResetData()} /></div>
-                    <div><PrimaryButton text="Update" onClick={() => this.UpdateData()} /></div>
-                    <div><PrimaryButton text="Delete" onClick={() => this.DeleteData()} /></div>
+                    <div><PrimaryButton className={styles.btngroupx} text="Submit" onClick={() => this.SaveData()} /></div>
+                    <div><PrimaryButton className={styles.btngroupx} text="Reset" onClick={() => this.ResetData()} /></div>
+                    {/* <div><PrimaryButton text="Update" onClick={() => this.UpdateData()} /></div>
+                    <div><PrimaryButton text="Delete" onClick={() => this.DeleteData()} /></div> */}
 
                 </div>
             </div>

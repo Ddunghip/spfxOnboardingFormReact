@@ -44,7 +44,7 @@
 
     // Primary Button
     min-width: 80px;
-    background-color: $ms-color-themePrimary;
+    background-color: #a305a3;
     border-color: $ms-color-themePrimary;
     color: $ms-color-white;
 
@@ -99,16 +99,25 @@
   display: flex;
   justify-content: center;
   align-items: center;
+ 
 }
  .btngroup > div{
   float: left; 
   display: inline;     
   margin-right: 30px;
   margin-top: 20px;
-}
+ }
+ .btngroupx{
+  color:white;
+  background-color: #a305a3;
+ }
 
-
- .togglegroup{float:left; display:inline-block; width: 100%; margin:10px 5px; }
+.Ilabel{color:white;
+        background-color: #a305a3;
+        margin-top: 2px;
+        text-indent: 5px;
+      }
+ .togglegroup{ display:inline-block; width: 100%; margin:10px 5px; }
  .togglegroup > div{float: left; display: inline;     margin-right: 30px;}
  
  .fluentUiDropdown {
