@@ -10,22 +10,34 @@ import { sp, Web, IWeb, } from "@pnp/sp/presets/all";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
-import { Dropdown, IDropdownOption } from '@fluentui/react';
+import { Dropdown, IDropdownOption, setFocusVisibility } from '@fluentui/react';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
-import { ObdDetails } from './ObdDetails';
+import ObdDetails from './ObdDetails';
 import { IStates } from './IStates';
 import { Log } from '@microsoft/sp-core-library';
 import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
 
 
 var arr = [];
-export default class ObdForm extends React.Component<IOnboardingformProps, IStates> {
+type Props = {
+
+    webURL: any;
+    context: any;
+    ChoicesRoles: any;
+    ChoicesReturnedtowork: any;
+    ChoicesOfficelocation: any;
+    spconect: any;
+
+}
+
+export default class ObdForm extends React.Component<Props, IStates> {
     constructor(props) {
         super(props);
         this.state = {
             DDChoicesRoles: "",
             DDChoicesReturnedtowork: "",
             DDChoicesOfficelocation: "",
+
             tgl: false,
             tglsurface: false,
             tglTablet: false,
@@ -50,27 +62,12 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
             ExistingPhoneNumber: "",
             WorkstationDescription: "",
             showdetail: false,
+            paramId: "",
+            filItem: [],
 
-            //send email
-            // ToEmail: [],
-            // CcEmail: [],
-            // EmailSubject: "",
-            // EmailBody: "",
 
         };
-        // sp.setup({
-        //     spfxContext: this.props.spconect
-        // });
     };
-
-
-
-    // public _onChange(ev, checked: boolean) {
-    //     // console.log('toggle is ' + (checked ? 'checked' : 'not checked'), checked);
-    //     let value = checked
-    //        this.setState(this.state.tglsurface : value)
-    //     console.log(checked, this.state.tglsurface, ev.target.value);
-    // }
     public onDropdownChange = (event, item: IDropdownOption): void => {
         this.setState({
             ...this.state, [event.target.title]: item.key as string
@@ -83,14 +80,10 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
         this.setState(e => ({
             showdetail: !e.showdetail
         }))
-
     }
-    public handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    public handleToggle(event) {
         this.setState({ ...this.state, [event.target.id]: !this.state[event.target.id] })
-        // this.setState(e => ({
-        //     showdetail: !e.showdetail
-        // }))
-        console.log('check show', this.state, event.target.id);
+        // console.log('check show', this.state[event.target.id], event.target.id);
 
     }
     public async componentDidMount() {
@@ -99,16 +92,48 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
 
     public async fetchData() {
         let web = Web(this.props.webURL);
+
         const items: any[] = await web.lists.getByTitle("Employee onboarding").items.select("*", "ID/Title").get();
-        console.log(items);
+        console.log('check list items >>>>>>>>>>', items);
         this.setState({ Items: items });
-        // let html = await this.getHTML(items);
-        // this.setState({ HTML: html });
+        this.getParam();
+
+        const filteritems = items.filter(val => val.ID == this.state.paramId)
+        this.setState({ filItem: filteritems })
+        console.log('filter items', filteritems);
+        await this.setData()
+    }
+    public setData() {
+        this.state.filItem.map((val) =>
+            this.setState({
+                FirstName: val.FirstName,
+                LastName: val.LastName,
+                PhoneNumber: val.PhoneNumber,
+                Email: val.Email,
+                ID: val.ID,
+                DDChoicesRoles: val.Roles,
+                DDChoicesReturnedtowork: val.Is_x0020_Returned_x0020_to_x0020,
+                DDChoicesOfficelocation: val.Office_x0020_Location,
+                tgl: val.Mobile,
+                tglsurface: val.Surface_x0020_Pro,
+                tglTablet: val.Tablet,
+                tglCarelink: val.Carelink,
+                tglDogsign: val.DocSign,
+                tglEpicor: val.Epicor,
+                tglIcare: val.ICare,
+                tglRiskman: val.Riskman,
+                EmployeeName: val.Manager,
+                EmployeeNameId: val.ManagerId,
+                StartDate: new Date(val.StartDate),
+                ExistingPhoneNumber: val.Existing_x0020_Phone_x0020_Numbe,
+                WorkstationDescription: val.Workstation_x0020_Description,
+
+            })
+        )
+        console.log(this.state);
+
     }
     public findData = (id): void => {
-        //this.fetchData();
-        // console.log('check id', id);
-
         var itemID = id;
         var allitems = this.state.Items;
         var allitemsLength = allitems.length;
@@ -175,6 +200,12 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
 
     }
 
+    public CheckData() {
+        if (this.state.FirstName === '') {
+            alert("First Name cannot be left blank ")
+        }
+    }
+
     private async SaveData() {
         let web = Web(this.props.webURL);
         await web.lists.getByTitle("Employee onboarding").items.add({
@@ -205,6 +236,14 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
         alert("Created Successfully");
         this.ResetData();
         this.fetchData();
+    }
+
+    public getParam = async () => {
+        const link = window.location.href
+        const url = new URL(link)
+        const str: string = url.hash
+        this.setState({ paramId: str.slice(5) })
+        console.log('>>>> id', str.slice(5));
     }
     private async UpdateData() {
         let web = Web(this.props.webURL);
@@ -238,17 +277,15 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
 
     public render(): React.ReactElement<IOnboardingformProps> {
         return (
-            <div>
-                <h1 style={{ color: "#a305a3", textAlign: "center" }}>New Employee Onboarding</h1>
-                <div className={styles.btngroup}>
-                    <div><PrimaryButton id='showdetail' name='showdetail' className={styles.btngroupx} text="Show Details" onClick={() => this.handleShow()} /></div>
-                </div>
-                {/* {this.state.HTML} */}
-                {this.state.showdetail ? <ObdDetails
-                    Items={this.state.Items}
-                    finData={this.findData} /> : ""}
 
-                <div >
+            <div className={styles.borderform}>
+
+
+
+                <h1 style={{ color: "#a305a3", textAlign: "center", fontSize: "40px", margin: "0px" }}>New Employee Onboarding</h1>
+                <hr style={{ color: "#a305a3", fontSize: '2px' }}></hr>
+
+                <div className={styles.form}>
                     <form>
                         <div >
                             <Label>First Name</Label>
@@ -321,26 +358,31 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
                                     label="Mobile"
                                     onText="Yes"
                                     offText="No"
-                                    onChanged={checked => this.setState({ tgl: checked })}
+                                    onChange={(value) => this.handleToggle(value)}
+                                // onChanged={checked => this.setState({ tgl: checked })}
                                 />
                                 </div>
                                 <div>
                                     <Toggle
+                                        id='tglsurface'
                                         checked={this.state.tglsurface}
                                         label="Surface Pro"
                                         onText="Yes"
                                         offText="No"
-                                        // onChange={() => this.handleToggle}
-                                        onChanged={checked => this.setState({ tglsurface: checked })}
+                                        onChange={(value) => this.handleToggle(value)}
+                                    // onChanged={checked => this.setState({ tglsurface: checked })}
                                     />
                                 </div>
                                 <div>
                                     <Toggle
+                                        id='tglTablet'
                                         checked={this.state.tglTablet}
                                         label="Tablet"
                                         onText="Yes"
                                         offText="No"
-                                        onChanged={checked => this.setState({ tglTablet: checked })}
+                                        onChange={(value) => this.handleToggle(value)}
+
+                                    // onChanged={checked => this.setState({ tglTablet: checked })}
 
                                     />
                                 </div>
@@ -350,47 +392,62 @@ export default class ObdForm extends React.Component<IOnboardingformProps, IStat
 
                                 <div>
                                     <Toggle
+                                        id='tglCarelink'
                                         checked={this.state.tglCarelink}
                                         label="Carelink"
                                         onText="Yes"
                                         offText="No"
-                                        onChanged={checked => this.setState({ tglCarelink: checked })}
+                                        onChange={(value) => this.handleToggle(value)}
+
+                                    // onChanged={checked => this.setState({ tglCarelink: checked })}
                                     />
                                 </div>
                                 <div>
                                     <Toggle
+                                        id='tglDogsign'
                                         checked={this.state.tglDogsign}
                                         label="DocSign"
                                         onText="Yes"
                                         offText="No"
-                                        onChanged={checked => this.setState({ tglDogsign: checked })}
+                                        onChange={(value) => this.handleToggle(value)}
+
+                                    // onChanged={checked => this.setState({ tglDogsign: checked })}
                                     />
                                 </div>
                                 <div>
                                     <Toggle
+                                        id='tglEpicor'
                                         checked={this.state.tglEpicor}
                                         label="Epicor"
                                         onText="Yes"
                                         offText="No"
-                                        onChanged={checked => this.setState({ tglEpicor: checked })}
+                                        onChange={(value) => this.handleToggle(value)}
+
+                                    // onChanged={checked => this.setState({ tglEpicor: checked })}
                                     />
                                 </div>
                                 <div>
                                     <Toggle
+                                        id='tglIcare'
                                         checked={this.state.tglIcare}
                                         label="ICare"
                                         onText="Yes"
                                         offText="No"
-                                        onChanged={checked => this.setState({ tglIcare: checked })}
+                                        onChange={(value) => this.handleToggle(value)}
+
+                                    // onChanged={checked => this.setState({ tglIcare: checked })}
                                     />
                                 </div>
                                 <div>
                                     <Toggle
+                                        id='tglRiskman'
                                         checked={this.state.tglRiskman}
                                         label="Riskman"
                                         onText="Yes"
                                         offText="No"
-                                        onChanged={checked => this.setState({ tglRiskman: checked })}
+                                        onChange={(value) => this.handleToggle(value)}
+
+                                    // onChanged={checked => this.setState({ tglRiskman: checked })}
                                     />
                                 </div>
                             </div>
@@ -431,5 +488,5 @@ export const FormatDate = (date): string => {
     month = month.length > 1 ? month : '0' + month;
     var day = date1.getDate().toString();
     day = day.length > 1 ? day : '0' + day;
-    return month + '/' + day + '/' + year;
+    return day + '/' + month + '/' + year;
 };

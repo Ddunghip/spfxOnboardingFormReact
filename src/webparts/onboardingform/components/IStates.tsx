@@ -29,6 +29,8 @@ export interface IStates {
     WorkstationDescription: any;
     showdetail: boolean;
 
+    paramId: any,
+    filItem: any,
     //send email
     // ToEmail: any;
     // CcEmail: any;

@@ -11,6 +11,10 @@ import * as strings from 'OnboardingformWebPartStrings';
 import Onboardingform from './components/Onboardingform';
 import { IOnboardingformProps } from './components/IOnboardingformProps';
 import ObdForm from './components/ObdForm';
+import Routes from './components/Routesss';
+// import { sp } from '@pnp/sp/presets/all';
+
+
 
 export interface IOnboardingformWebPartProps {
   description: string;
@@ -18,10 +22,21 @@ export interface IOnboardingformWebPartProps {
 
 export default class OnboardingformWebPart extends BaseClientSideWebPart<IOnboardingformWebPartProps> {
 
+  // private _links: Array<any>;
+
+  // protected async onInit(): Promise<void> {
+  //   sp.setup({ spfxContext: this.context });
+  //   this._links = await this._getPersonalLinks(false);
+  //   return super.onInit();
+  // }
+
   public async render(): Promise<void> {
     const element: React.ReactElement<IOnboardingformProps> = React.createElement(
-      ObdForm,
+      Routes,
       {
+
+
+
         description: this.properties.description,
         webURL: this.context.pageContext.web.absoluteUrl,
         context: this.context,
@@ -66,7 +81,35 @@ export default class OnboardingformWebPart extends BaseClientSideWebPart<IOnboar
         }
       ]
     };
+
   }
+  // private _getPersonalLinks = (filterByEmail: boolean): Promise<Array<any>> => {
+
+  //   // This legacyPageContext is not recommended to be used.
+  //   console.log(this.context.pageContext.legacyPageContext.userId);
+
+  //   if (filterByEmail) {
+  //     // Filter by EMail
+  //     return sp.web.lists.getByTitle('Employee onboarding').items
+  //       .filter(`Author/EMail eq '${encodeURIComponent(this.context.pageContext.user.email)}'`)
+  //       .select('Title')
+  //       .get();
+  //   }
+  //   else {
+  //     //Filter by LoginName (i:0#.f|membership|r@tenant-name.onmicrosoft.com)
+  //     let userToken = `i:0#.f|membership|${this.context.pageContext.user.loginName}`;
+  //     return sp.web.lists.getByTitle('Employee onboarding').items
+  //       .filter(`Author/Name eq '${encodeURIComponent(userToken)}'`)
+  //       .select('Title')
+  //       .get();
+  //   }
+
+  //   sp.web.currentUser.get().then(user => {
+  //     // Query for the list items using user.Id
+  //     // sp.web.lists.......
+  //   });
+  // }
+
 }
 export const getChoiceFields = async (webURL, field) => {
   let resultarr = [];

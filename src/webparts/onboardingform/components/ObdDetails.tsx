@@ -8,7 +8,7 @@ type Props = {
 };
 
 
-export class ObdDetails extends React.Component<Props> {
+export default class ObdDetails extends React.Component<Props> {
     static defaultProps = {
         Items: [],
 
@@ -31,8 +31,6 @@ export class ObdDetails extends React.Component<Props> {
                             <th>Phone Number </th>
                             <th>Email </th>
                             <th>Start Date </th>
-                            {/* <th>Workstation Description </th>
-                            <th>Existing Phone Number </th> */}
                         </tr>
                     </thead>
                     <tbody>
