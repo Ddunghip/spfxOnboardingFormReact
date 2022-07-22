@@ -7,6 +7,7 @@ import ObdForm from './ObdForm';
 import ObdDetails from './ObdDetails';
 import { IOnboardingformProps } from './IOnboardingformProps';
 import PageNotFound from './PageNotFound';
+import history from './history';
 
 
 export default class Routes extends React.Component<IOnboardingformProps> {
@@ -16,7 +17,7 @@ export default class Routes extends React.Component<IOnboardingformProps> {
 
         return (
 
-            <HashRouter>
+            <HashRouter history={history}>
                 <Switch>
                     <Route path='/id=:id' exact>
                         <ObdForm
@@ -40,7 +41,9 @@ export default class Routes extends React.Component<IOnboardingformProps> {
                             ChoicesOfficelocation={this.props.ChoicesOfficelocation}
                         />
                     </Route>
+
                     <Route path='/detail' component={ObdDetails} />
+
                     {/* <Route component={PageNotFound} /> */}
                 </Switch>
             </HashRouter>

@@ -35,8 +35,6 @@ export default class OnboardingformWebPart extends BaseClientSideWebPart<IOnboar
       Routes,
       {
 
-
-
         description: this.properties.description,
         webURL: this.context.pageContext.web.absoluteUrl,
         context: this.context,

@@ -12,11 +12,10 @@ import "@pnp/sp/items";
 import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { Dropdown, IDropdownOption, setFocusVisibility } from '@fluentui/react';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
-import ObdDetails from './ObdDetails';
 import { IStates } from './IStates';
-import { Log } from '@microsoft/sp-core-library';
-import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
 
+import history from './history';
+import { UrlQueryParameterCollection } from '@microsoft/sp-core-library';
 
 var arr = [];
 type Props = {
@@ -100,8 +99,8 @@ export default class ObdForm extends React.Component<Props, IStates> {
 
         const filteritems = items.filter(val => val.ID == this.state.paramId)
         this.setState({ filItem: filteritems })
-        console.log('filter items', filteritems);
-        await this.setData()
+        console.log('filter items', filteritems.length);
+        await this.setData();
     }
     public setData() {
         this.state.filItem.map((val) =>
@@ -167,6 +166,8 @@ export default class ObdForm extends React.Component<Props, IStates> {
     }
 
     public ResetData() {
+        history.push(`${history.location.pathname}#/`)
+
         this.setState({
             DDChoicesRoles: "",
             DDChoicesReturnedtowork: "",
@@ -196,14 +197,7 @@ export default class ObdForm extends React.Component<Props, IStates> {
 
         });
         console.log(this.state);
-
-
-    }
-
-    public CheckData() {
-        if (this.state.FirstName === '') {
-            alert("First Name cannot be left blank ")
-        }
+        this.fetchData()
     }
 
     private async SaveData() {
@@ -249,9 +243,25 @@ export default class ObdForm extends React.Component<Props, IStates> {
         let web = Web(this.props.webURL);
         await web.lists.getByTitle("Employee onboarding").items.getById(this.state.ID).update({
 
-            Employee_x0020_NameId: this.state.EmployeeNameId,
-            HireDate: new Date(this.state.HireDate),
-            Job_x0020_Description: this.state.JobDescription,
+            FirstName: this.state.FirstName,
+            LastName: this.state.LastName,
+            PhoneNumber: this.state.PhoneNumber,
+            Email: this.state.Email,
+            StartDate: new Date(this.state.StartDate),
+            Workstation_x0020_Description: this.state.WorkstationDescription,
+            Existing_x0020_Phone_x0020_Numbe: this.state.ExistingPhoneNumber,
+            ManagerId: this.state.EmployeeNameId,
+            Roles: this.state.DDChoicesRoles,
+            Is_x0020_Returned_x0020_to_x0020: this.state.DDChoicesReturnedtowork,
+            Office_x0020_Location: this.state.DDChoicesOfficelocation,
+            Mobile: this.state.tgl,
+            Surface_x0020_Pro: this.state.tglsurface,
+            Tablet: this.state.tglTablet,
+            Carelink: this.state.tglCarelink,
+            DocSign: this.state.tglDogsign,
+            Epicor: this.state.tglEpicor,
+            ICare: this.state.tglIcare,
+            Riskman: this.state.tglRiskman,
 
         }).then(i => {
             console.log(i);
@@ -260,22 +270,26 @@ export default class ObdForm extends React.Component<Props, IStates> {
         this.ResetData();
         this.fetchData();
     }
-    private async DeleteData() {
-        let web = Web(this.props.webURL);
-        console.log('check delete', this.state.ID);
+    // private async DeleteData() {
+    //     let web = Web(this.props.webURL);
+    //     console.log('check delete', this.state.ID);
 
-        await web.lists.getByTitle("Employee onboarding").items.getById(this.state.ID).delete()
-            .then(i => {
-                console.log(i);
-            });
-        alert("Deleted Successfully");
-        this.ResetData();
-        this.fetchData();
-    }
-
-
+    //     await web.lists.getByTitle("Employee onboarding").items.getById(this.state.ID).delete()
+    //         .then(i => {
+    //             console.log(i);
+    //         });
+    //     alert("Deleted Successfully");
+    //     this.ResetData();
+    //     this.fetchData();
+    // }
 
     public render(): React.ReactElement<IOnboardingformProps> {
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+        let searchParam: string;
+        params.has('id') ? searchParam = params.get("id") : searchParam = "";
+        console.log('check history', params)
+
         return (
 
             <div className={styles.borderform}>
@@ -452,16 +466,16 @@ export default class ObdForm extends React.Component<Props, IStates> {
                                 </div>
                             </div>
                             <br />
-
                         </div>
-
                     </form>
                 </div>
                 <div className={styles.btngroup}>
-                    <div><PrimaryButton className={styles.btngroupx} text="Submit" onClick={() => this.SaveData()} /></div>
+                    {this.state.filItem.length === 0 ?
+                        <div><PrimaryButton className={styles.btngroupx} text="Submit" onClick={() => this.SaveData()} /></div> :
+                        <div><PrimaryButton className={styles.btngroupx} text="Update" onClick={() => this.UpdateData()} /></div>
+                    }
                     <div><PrimaryButton className={styles.btngroupx} text="Reset" onClick={() => this.ResetData()} /></div>
-                    {/* <div><PrimaryButton text="Update" onClick={() => this.UpdateData()} /></div>
-                    <div><PrimaryButton text="Delete" onClick={() => this.DeleteData()} /></div> */}
+
 
                 </div>
             </div>
