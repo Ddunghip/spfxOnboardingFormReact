@@ -28,9 +28,11 @@ export default class Routes extends React.Component<IOnboardingformProps> {
                             ChoicesRoles={this.props.ChoicesRoles}
                             ChoicesReturnedtowork={this.props.ChoicesReturnedtowork}
                             ChoicesOfficelocation={this.props.ChoicesOfficelocation}
+                            userID={this.props.userID}
+
                         />
                     </Route>
-                    <Route path='/' exact>
+                    <Route path='/' >
                         <ObdForm
                             {...this.props}
                             context={this.props.context}
@@ -39,6 +41,7 @@ export default class Routes extends React.Component<IOnboardingformProps> {
                             ChoicesRoles={this.props.ChoicesRoles}
                             ChoicesReturnedtowork={this.props.ChoicesReturnedtowork}
                             ChoicesOfficelocation={this.props.ChoicesOfficelocation}
+
                         />
                     </Route>
 

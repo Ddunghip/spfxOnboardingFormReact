@@ -10,6 +10,8 @@ export interface IOnboardingformProps {
   ChoicesReturnedtowork: any;
   ChoicesOfficelocation: any;
 
+  userID: any;
+
   // Eitems: Array<any>;
 
 }

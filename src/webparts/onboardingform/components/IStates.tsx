@@ -27,6 +27,8 @@ export interface IStates {
     Email: any;
     ExistingPhoneNumber: any;
     WorkstationDescription: any;
+    AuthorId: any;
+
     showdetail: boolean;
 
     paramId: any,

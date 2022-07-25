@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const PageNotFound = () => <h1>Requested Page Not Found</h1>;
+const PageNotFound = () => <h1> You have not permission to access</h1>;
 
 export default PageNotFound;
 

@@ -13,7 +13,7 @@ import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { Dropdown, IDropdownOption, setFocusVisibility } from '@fluentui/react';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 import { IStates } from './IStates';
-
+import PageNotFound from './PageNotFound';
 import history from './history';
 import { UrlQueryParameterCollection } from '@microsoft/sp-core-library';
 
@@ -26,6 +26,7 @@ type Props = {
     ChoicesReturnedtowork: any;
     ChoicesOfficelocation: any;
     spconect: any;
+    userID: any;
 
 }
 
@@ -61,6 +62,7 @@ export default class ObdForm extends React.Component<Props, IStates> {
             ExistingPhoneNumber: "",
             WorkstationDescription: "",
             showdetail: false,
+            AuthorId: "",
             paramId: "",
             filItem: [],
 
@@ -126,6 +128,7 @@ export default class ObdForm extends React.Component<Props, IStates> {
                 StartDate: new Date(val.StartDate),
                 ExistingPhoneNumber: val.Existing_x0020_Phone_x0020_Numbe,
                 WorkstationDescription: val.Workstation_x0020_Description,
+                AuthorId: val.AuthorId,
 
             })
         )
@@ -284,201 +287,199 @@ export default class ObdForm extends React.Component<Props, IStates> {
     // }
 
     public render(): React.ReactElement<IOnboardingformProps> {
-        const url = new URL(window.location.href);
-        const params = new URLSearchParams(url.search);
-        let searchParam: string;
-        params.has('id') ? searchParam = params.get("id") : searchParam = "";
-        console.log('check history', params)
+        console.log('check userID', this.props.userID, this.state.AuthorId)
+
 
         return (
+            this.state.AuthorId === this.props.userID || this.state.paramId == "" ?
+                <div className={styles.borderform}>
+                    <h1 style={{ color: "#a305a3", textAlign: "center", fontSize: "40px", margin: "0px" }}>New Employee Onboarding</h1>
+                    <hr style={{ color: "#a305a3", fontSize: '2px' }}></hr>
 
-            <div className={styles.borderform}>
+                    <div className={styles.form}>
+                        <form>
+                            <div >
+                                <Label>First Name</Label>
+                                <TextField value={this.state.FirstName} id="FirstName" name="FirstName"
+                                    onChange={(value) => this.handleChange(value)} />
 
+                                <Label>Last Name</Label>
+                                <TextField value={this.state.LastName} id="LastName" name="LastName" onChange={(value) => this.handleChange(value)} />
 
-
-                <h1 style={{ color: "#a305a3", textAlign: "center", fontSize: "40px", margin: "0px" }}>New Employee Onboarding</h1>
-                <hr style={{ color: "#a305a3", fontSize: '2px' }}></hr>
-
-                <div className={styles.form}>
-                    <form>
-                        <div >
-                            <Label>First Name</Label>
-                            <TextField value={this.state.FirstName} id="FirstName" name="FirstName"
-                                onChange={(value) => this.handleChange(value)} />
-
-                            <Label>Last Name</Label>
-                            <TextField value={this.state.LastName} id="LastName" name="LastName" onChange={(value) => this.handleChange(value)} />
-
-                            <Label>Manager</Label>
-                            <PeoplePicker
-                                context={this.props.context}
-                                personSelectionLimit={1}
-                                // defaultSelectedUsers={this.state.EmployeeName===""?[]:this.state.EmployeeName}
-                                required={false}
-                                onChange={this._getPeoplePickerItems}
-                                defaultSelectedUsers={[this.state.EmployeeName ? this.state.EmployeeName : ""]}
-                                showHiddenInUI={false}
-                                principalTypes={[PrincipalType.User]}
-                                resolveDelay={1000}
-                                ensureUser={true}
-                            />
-
-
-                            <Label>Phone Number</Label>
-                            <TextField value={this.state.PhoneNumber} id="PhoneNumber" name="PhoneNumber" onChange={(value) => this.handleChange(value)} />
-
-                            <Label>Email</Label>
-                            <TextField value={this.state.Email} id="Email" name="Email" onChange={(value) => this.handleChange(value)} />
-
-                            <Label>Start Date</Label>
-                            <DatePicker maxDate={new Date()} allowTextInput={false} strings={DatePickerStrings} value={this.state.StartDate} onSelectDate={(e) => { this.setState({ StartDate: e }); }} ariaLabel="Select a date" formatDate={FormatDate} />
-
-                            <Label>Workstation Description</Label>
-                            <TextField value={this.state.WorkstationDescription} multiline id="WorkstationDescription" name="WorkstationDescription" onChange={(value) => this.handleChange(value)} />
-
-                            <Label>Existing Phone Number</Label>
-                            <TextField value={this.state.ExistingPhoneNumber} id="ExistingPhoneNumber" name='ExistingPhoneNumber' onChange={(value) => this.handleChange(value)} />
-                            <Label>Roles</Label>
-                            <Dropdown
-                                title='DDChoicesRoles'
-                                placeholder="Find items..."
-                                selectedKey={this.state.DDChoicesRoles}
-                                options={this.props.ChoicesRoles}
-                                onChange={this.onDropdownChange}
-                            />
-                            <Label>Is Returned To Work </Label>
-                            <Dropdown
-                                title='DDChoicesReturnedtowork'
-                                placeholder="Find items..."
-                                selectedKey={this.state.DDChoicesReturnedtowork}
-                                options={this.props.ChoicesReturnedtowork}
-                                onChange={this.onDropdownChange}
-                            />
-                            <Label>Office Location</Label>
-                            <Dropdown
-                                title='DDChoicesOfficelocation'
-                                placeholder="Find items..."
-                                selectedKey={this.state.DDChoicesOfficelocation}
-                                options={this.props.ChoicesOfficelocation}
-                                onChange={this.onDropdownChange}
-                            />
-                            <Label className={styles.Ilabel}> IT Equipments</Label>
-                            <div className={styles.togglegroup}>
-                                <div><Toggle
-                                    id='tgl'
-
-                                    // defaultChecked={false}
-                                    checked={this.state.tgl}
-                                    label="Mobile"
-                                    onText="Yes"
-                                    offText="No"
-                                    onChange={(value) => this.handleToggle(value)}
-                                // onChanged={checked => this.setState({ tgl: checked })}
+                                <Label>Manager</Label>
+                                <PeoplePicker
+                                    context={this.props.context}
+                                    personSelectionLimit={1}
+                                    // defaultSelectedUsers={this.state.EmployeeName===""?[]:this.state.EmployeeName}
+                                    required={false}
+                                    onChange={this._getPeoplePickerItems}
+                                    defaultSelectedUsers={[this.state.EmployeeName ? this.state.EmployeeName : ""]}
+                                    showHiddenInUI={false}
+                                    principalTypes={[PrincipalType.User]}
+                                    resolveDelay={1000}
+                                    ensureUser={true}
                                 />
-                                </div>
-                                <div>
-                                    <Toggle
-                                        id='tglsurface'
-                                        checked={this.state.tglsurface}
-                                        label="Surface Pro"
+
+
+                                <Label>Phone Number</Label>
+                                <TextField value={this.state.PhoneNumber} id="PhoneNumber" name="PhoneNumber" onChange={(value) => this.handleChange(value)} />
+
+                                <Label>Email</Label>
+                                <TextField value={this.state.Email} id="Email" name="Email" onChange={(value) => this.handleChange(value)} />
+
+                                <Label>Start Date</Label>
+                                <DatePicker maxDate={new Date()} allowTextInput={false} strings={DatePickerStrings} value={this.state.StartDate} onSelectDate={(e) => { this.setState({ StartDate: e }); }} ariaLabel="Select a date" formatDate={FormatDate} />
+
+                                <Label>Workstation Description</Label>
+                                <TextField value={this.state.WorkstationDescription} multiline id="WorkstationDescription" name="WorkstationDescription" onChange={(value) => this.handleChange(value)} />
+
+                                <Label>Existing Phone Number</Label>
+                                <TextField value={this.state.ExistingPhoneNumber} id="ExistingPhoneNumber" name='ExistingPhoneNumber' onChange={(value) => this.handleChange(value)} />
+                                <Label>Roles</Label>
+                                <Dropdown
+                                    title='DDChoicesRoles'
+                                    placeholder="Find items..."
+                                    selectedKey={this.state.DDChoicesRoles}
+                                    options={this.props.ChoicesRoles}
+                                    onChange={this.onDropdownChange}
+                                />
+                                <Label>Is Returned To Work </Label>
+                                <Dropdown
+                                    title='DDChoicesReturnedtowork'
+                                    placeholder="Find items..."
+                                    selectedKey={this.state.DDChoicesReturnedtowork}
+                                    options={this.props.ChoicesReturnedtowork}
+                                    onChange={this.onDropdownChange}
+                                />
+                                <Label>Office Location</Label>
+                                <Dropdown
+                                    title='DDChoicesOfficelocation'
+                                    placeholder="Find items..."
+                                    selectedKey={this.state.DDChoicesOfficelocation}
+                                    options={this.props.ChoicesOfficelocation}
+                                    onChange={this.onDropdownChange}
+                                />
+                                <Label className={styles.Ilabel}> IT Equipments</Label>
+                                <div className={styles.togglegroup}>
+                                    <div><Toggle
+                                        id='tgl'
+
+                                        // defaultChecked={false}
+                                        checked={this.state.tgl}
+                                        label="Mobile"
                                         onText="Yes"
                                         offText="No"
                                         onChange={(value) => this.handleToggle(value)}
-                                    // onChanged={checked => this.setState({ tglsurface: checked })}
+                                    // onChanged={checked => this.setState({ tgl: checked })}
                                     />
-                                </div>
-                                <div>
-                                    <Toggle
-                                        id='tglTablet'
-                                        checked={this.state.tglTablet}
-                                        label="Tablet"
-                                        onText="Yes"
-                                        offText="No"
-                                        onChange={(value) => this.handleToggle(value)}
+                                    </div>
+                                    <div>
+                                        <Toggle
+                                            id='tglsurface'
+                                            checked={this.state.tglsurface}
+                                            label="Surface Pro"
+                                            onText="Yes"
+                                            offText="No"
+                                            onChange={(value) => this.handleToggle(value)}
+                                        // onChanged={checked => this.setState({ tglsurface: checked })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Toggle
+                                            id='tglTablet'
+                                            checked={this.state.tglTablet}
+                                            label="Tablet"
+                                            onText="Yes"
+                                            offText="No"
+                                            onChange={(value) => this.handleToggle(value)}
 
-                                    // onChanged={checked => this.setState({ tglTablet: checked })}
+                                        // onChanged={checked => this.setState({ tglTablet: checked })}
 
-                                    />
+                                        />
+                                    </div>
                                 </div>
+                                <Label className={styles.Ilabel}> System Access Requirements</Label>
+                                <div className={styles.togglegroup}>
+
+                                    <div>
+                                        <Toggle
+                                            id='tglCarelink'
+                                            checked={this.state.tglCarelink}
+                                            label="Carelink"
+                                            onText="Yes"
+                                            offText="No"
+                                            onChange={(value) => this.handleToggle(value)}
+
+                                        // onChanged={checked => this.setState({ tglCarelink: checked })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Toggle
+                                            id='tglDogsign'
+                                            checked={this.state.tglDogsign}
+                                            label="DocSign"
+                                            onText="Yes"
+                                            offText="No"
+                                            onChange={(value) => this.handleToggle(value)}
+
+                                        // onChanged={checked => this.setState({ tglDogsign: checked })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Toggle
+                                            id='tglEpicor'
+                                            checked={this.state.tglEpicor}
+                                            label="Epicor"
+                                            onText="Yes"
+                                            offText="No"
+                                            onChange={(value) => this.handleToggle(value)}
+
+                                        // onChanged={checked => this.setState({ tglEpicor: checked })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Toggle
+                                            id='tglIcare'
+                                            checked={this.state.tglIcare}
+                                            label="ICare"
+                                            onText="Yes"
+                                            offText="No"
+                                            onChange={(value) => this.handleToggle(value)}
+
+                                        // onChanged={checked => this.setState({ tglIcare: checked })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Toggle
+                                            id='tglRiskman'
+                                            checked={this.state.tglRiskman}
+                                            label="Riskman"
+                                            onText="Yes"
+                                            offText="No"
+                                            onChange={(value) => this.handleToggle(value)}
+
+                                        // onChanged={checked => this.setState({ tglRiskman: checked })}
+                                        />
+                                    </div>
+                                </div>
+                                <br />
                             </div>
-                            <Label className={styles.Ilabel}> System Access Requirements</Label>
-                            <div className={styles.togglegroup}>
-
-                                <div>
-                                    <Toggle
-                                        id='tglCarelink'
-                                        checked={this.state.tglCarelink}
-                                        label="Carelink"
-                                        onText="Yes"
-                                        offText="No"
-                                        onChange={(value) => this.handleToggle(value)}
-
-                                    // onChanged={checked => this.setState({ tglCarelink: checked })}
-                                    />
-                                </div>
-                                <div>
-                                    <Toggle
-                                        id='tglDogsign'
-                                        checked={this.state.tglDogsign}
-                                        label="DocSign"
-                                        onText="Yes"
-                                        offText="No"
-                                        onChange={(value) => this.handleToggle(value)}
-
-                                    // onChanged={checked => this.setState({ tglDogsign: checked })}
-                                    />
-                                </div>
-                                <div>
-                                    <Toggle
-                                        id='tglEpicor'
-                                        checked={this.state.tglEpicor}
-                                        label="Epicor"
-                                        onText="Yes"
-                                        offText="No"
-                                        onChange={(value) => this.handleToggle(value)}
-
-                                    // onChanged={checked => this.setState({ tglEpicor: checked })}
-                                    />
-                                </div>
-                                <div>
-                                    <Toggle
-                                        id='tglIcare'
-                                        checked={this.state.tglIcare}
-                                        label="ICare"
-                                        onText="Yes"
-                                        offText="No"
-                                        onChange={(value) => this.handleToggle(value)}
-
-                                    // onChanged={checked => this.setState({ tglIcare: checked })}
-                                    />
-                                </div>
-                                <div>
-                                    <Toggle
-                                        id='tglRiskman'
-                                        checked={this.state.tglRiskman}
-                                        label="Riskman"
-                                        onText="Yes"
-                                        offText="No"
-                                        onChange={(value) => this.handleToggle(value)}
-
-                                    // onChanged={checked => this.setState({ tglRiskman: checked })}
-                                    />
-                                </div>
-                            </div>
-                            <br />
-                        </div>
-                    </form>
-                </div>
-                <div className={styles.btngroup}>
-                    {this.state.filItem.length === 0 ?
-                        <div><PrimaryButton className={styles.btngroupx} text="Submit" onClick={() => this.SaveData()} /></div> :
-                        <div><PrimaryButton className={styles.btngroupx} text="Update" onClick={() => this.UpdateData()} /></div>
-                    }
-                    <div><PrimaryButton className={styles.btngroupx} text="Reset" onClick={() => this.ResetData()} /></div>
+                        </form>
+                    </div>
+                    <div className={styles.btngroup}>
+                        {this.state.filItem.length === 0 ?
+                            <div><PrimaryButton className={styles.btngroupx} text="Submit" onClick={() => this.SaveData()} /></div> :
+                            <div><PrimaryButton className={styles.btngroupx} text="Update" onClick={() => this.UpdateData()} /></div>
+                        }
+                        <div><PrimaryButton className={styles.btngroupx} text="Reset" onClick={() => this.ResetData()} /></div>
 
 
-                </div>
-            </div>
+                    </div>
+                </div> : <PageNotFound />
+
+
+
+
         );
     }
 }
