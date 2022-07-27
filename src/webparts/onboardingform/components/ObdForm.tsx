@@ -28,7 +28,7 @@ type Props = {
     spconect: any;
     userID: any;
 
-}
+};
 
 export default class ObdForm extends React.Component<Props, IStates> {
     constructor(props) {
@@ -65,10 +65,11 @@ export default class ObdForm extends React.Component<Props, IStates> {
             AuthorId: "",
             paramId: "",
             filItem: [],
+            lastItem: [],
 
 
         };
-    };
+    }
     public onDropdownChange = (event, item: IDropdownOption): void => {
         this.setState({
             ...this.state, [event.target.title]: item.key as string
@@ -80,10 +81,10 @@ export default class ObdForm extends React.Component<Props, IStates> {
     public handleShow() {
         this.setState(e => ({
             showdetail: !e.showdetail
-        }))
+        }));
     }
     public handleToggle(event) {
-        this.setState({ ...this.state, [event.target.id]: !this.state[event.target.id] })
+        this.setState({ ...this.state, [event.target.id]: !this.state[event.target.id] });
         // console.log('check show', this.state[event.target.id], event.target.id);
 
     }
@@ -91,21 +92,35 @@ export default class ObdForm extends React.Component<Props, IStates> {
         await this.fetchData();
     }
 
+    public componentWillUnmount() {
+        this.ResetData();
+    }
+
     public async fetchData() {
         let web = Web(this.props.webURL);
 
-        const items: any[] = await web.lists.getByTitle("Employee onboarding").items.select("*", "ID/Title").get();
+        const items: any[] = await web.lists.getByTitle("Employee onboarding").items.select("*", "Manager/Name,Manager/Title").expand("Manager").get();
         console.log('check list items >>>>>>>>>>', items);
         this.setState({ Items: items });
         this.getParam();
+        const filterbyuser = items.filter(val => val.AuthorId == this.props.userID);
+        const lastIuser = filterbyuser[filterbyuser.length - 1];
+        const arrItem = new Array(lastIuser);
 
-        const filteritems = items.filter(val => val.ID == this.state.paramId)
-        this.setState({ filItem: filteritems })
-        console.log('filter items', filteritems.length);
-        await this.setData();
+        await this.setState({ lastItem: arrItem });
+
+        const filteritems = items.filter(val => val.ID == this.state.paramId);
+        this.setState({ filItem: filteritems });
+
+
+        console.log('filter items', this.state.lastItem.length, this.state.filItem.length);
+
+        this.state.paramId === "" ? await this.setData(this.state.lastItem) : await this.setData(this.state.filItem);
+
+
     }
-    public setData() {
-        this.state.filItem.map((val) =>
+    public setData = (value) => {
+        value.map((val) =>
             this.setState({
                 FirstName: val.FirstName,
                 LastName: val.LastName,
@@ -123,7 +138,7 @@ export default class ObdForm extends React.Component<Props, IStates> {
                 tglEpicor: val.Epicor,
                 tglIcare: val.ICare,
                 tglRiskman: val.Riskman,
-                EmployeeName: val.Manager,
+                EmployeeName: val.Manager.Title,
                 EmployeeNameId: val.ManagerId,
                 StartDate: new Date(val.StartDate),
                 ExistingPhoneNumber: val.Existing_x0020_Phone_x0020_Numbe,
@@ -131,10 +146,12 @@ export default class ObdForm extends React.Component<Props, IStates> {
                 AuthorId: val.AuthorId,
 
             })
-        )
-        console.log(this.state);
+        );
+        console.log("check>>>>", this.state);
 
     }
+
+
     public findData = (id): void => {
         var itemID = id;
         var allitems = this.state.Items;
@@ -169,7 +186,7 @@ export default class ObdForm extends React.Component<Props, IStates> {
     }
 
     public ResetData() {
-        history.push(`${history.location.pathname}#/`)
+        history.push(`${history.location.pathname}#/`);
 
         this.setState({
             DDChoicesRoles: "",
@@ -200,7 +217,7 @@ export default class ObdForm extends React.Component<Props, IStates> {
 
         });
         console.log(this.state);
-        this.fetchData()
+
     }
 
     private async SaveData() {
@@ -236,10 +253,10 @@ export default class ObdForm extends React.Component<Props, IStates> {
     }
 
     public getParam = async () => {
-        const link = window.location.href
-        const url = new URL(link)
-        const str: string = url.hash
-        this.setState({ paramId: str.slice(5) })
+        const link = window.location.href;
+        const url = new URL(link);
+        const str: string = url.hash;
+        this.setState({ paramId: str.slice(5) });
         console.log('>>>> id', str.slice(5));
     }
     private async UpdateData() {
@@ -270,7 +287,6 @@ export default class ObdForm extends React.Component<Props, IStates> {
             console.log(i);
         });
         alert("Updated Successfully");
-        this.ResetData();
         this.fetchData();
     }
     // private async DeleteData() {
@@ -287,7 +303,7 @@ export default class ObdForm extends React.Component<Props, IStates> {
     // }
 
     public render(): React.ReactElement<IOnboardingformProps> {
-        console.log('check userID', this.props.userID, this.state.AuthorId)
+        console.log('check userID', this.props.userID, this.state.AuthorId);
 
 
         return (
@@ -467,11 +483,11 @@ export default class ObdForm extends React.Component<Props, IStates> {
                         </form>
                     </div>
                     <div className={styles.btngroup}>
-                        {this.state.filItem.length === 0 ?
+                        {this.state.ID === 0 ?
                             <div><PrimaryButton className={styles.btngroupx} text="Submit" onClick={() => this.SaveData()} /></div> :
                             <div><PrimaryButton className={styles.btngroupx} text="Update" onClick={() => this.UpdateData()} /></div>
                         }
-                        <div><PrimaryButton className={styles.btngroupx} text="Reset" onClick={() => this.ResetData()} /></div>
+                        <div><PrimaryButton className={styles.btngroupx} text="Cancel" onClick={() => this.ResetData()} /></div>
 
 
                     </div>

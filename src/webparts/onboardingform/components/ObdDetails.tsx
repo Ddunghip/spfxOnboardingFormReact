@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from './Onboardingform.module.scss';
-import { FormatDate } from './ObdForm'
+import { FormatDate } from './ObdForm';
 type Props = {
     Items: any;
     finData: any;
@@ -9,17 +9,14 @@ type Props = {
 
 
 export default class ObdDetails extends React.Component<Props> {
-    static defaultProps = {
+    private static defaultProps = {
         Items: [],
-
-
-
     };
     constructor(props: any) {
-        super(props)
+        super(props);
     }
 
-    render() {
+    public render() {
         const Items = this.props;
         return (
             <div>
@@ -52,6 +49,6 @@ export default class ObdDetails extends React.Component<Props> {
                     </tbody>
                 </table>
             </div >
-        )
+        );
     }
 }

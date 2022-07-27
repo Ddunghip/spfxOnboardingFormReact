@@ -12,7 +12,7 @@ import history from './history';
 
 export default class Routes extends React.Component<IOnboardingformProps> {
 
-    render() {
+    public render() {
         console.log(this.props);
 
         return (
@@ -50,6 +50,6 @@ export default class Routes extends React.Component<IOnboardingformProps> {
                     {/* <Route component={PageNotFound} /> */}
                 </Switch>
             </HashRouter>
-        )
-    };
+        );
+    }
 }

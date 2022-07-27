@@ -31,11 +31,8 @@ export interface IStates {
 
     showdetail: boolean;
 
-    paramId: any,
-    filItem: any,
-    //send email
-    // ToEmail: any;
-    // CcEmail: any;
-    // EmailSubject: any;
-    // EmailBody: any;
+    paramId: any;
+
+    filItem: any;
+    lastItem: any;
 }
